@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dice Rolling Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #D3ECCD;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #2c3e50;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin-bottom: 40px;
+      font-size: 3rem;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.2);
+      font-weight: 700;
+      color: #2c3e50;
+    }
+
+    .game-container {
+      display: flex;
+      gap: 50px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .player {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 25px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: transform 0.3s ease;
+      min-width: 200px;
+      color: #2c3e50;
+    }
+
+    .player:hover {
+      transform: translateY(-5px);
+    }
+
+    .player.winner {
+      background: rgba(255, 215, 0, 0.4);
+      transform: scale(1.05);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+    }
+
+    .player.draw {
+      background: rgba(100, 149, 237, 0.3);
+      transform: scale(1.02);
+      box-shadow: 0 0 25px rgba(100, 149, 237, 0.4);
+    }
+
+    .player h2 {
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+
+    .dice {
+      font-size: 100px;
+      margin: 25px 0;
+      transition: transform 0.5s ease;
+    }
+
+    .dice.rolling {
+      animation: roll 0.5s ease-in-out;
+    }
+
+    @keyframes roll {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(90deg) scale(1.1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      75% { transform: rotate(270deg) scale(1.1); }
+    }
+
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      border: none;
+      background: linear-gradient(45deg, #4CAF50, #45a049);
+      color: white;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+      color: white;
+      padding: 50px;
+      border-radius: 25px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 10;
+      text-align: center;
+      min-width: 300px;
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255,255,255,0.2);
+      opacity: 0;
+    }
+
+    .popup.show {
+      display: block !important;
+      animation: popupShow 0.5s ease-out forwards;
+    }
+
+    @keyframes popupShow {
+      0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+      }
+      100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .popup h2 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      font-weight: 700;
+      text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .popup .score-display {
+      font-size: 1.5rem;
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .popup button {
+      margin-top: 25px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid white;
+      font-size: 20px;
+      padding: 15px 35px;
+    }
+
+    .popup button:hover {
+      background: white;
+      color: #4CAF50;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 5;
+    }
+
+    .overlay.show {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .score-tracker {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .score-tracker h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎲 Dice Rolling Championship</h1>
+
+  <div class="game-container">
+    <div class="player" id="player1">
+      <h2>Player 1</h2>
+      <div class="dice" id="dice1">🎲</div>
+      <button onclick="rollDice(1)" id="btn1">Roll Dice</button>
+    </div>
+
+    <div class="player" id="player2">
+      <h2>Player 2</h2>
+      <div class="dice" id="dice2">🎲</div>
+      <button onclick="rollDice(2)" id="btn2">Roll Dice</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="popup" id="winnerPopup">
+    <h2 id="winnerText">🎉 Player Wins!</h2>
+    <div class="score-display" id="scoreDisplay">
+      Player 1: 0 | Player 2: 0
+    </div>
+    <button onclick="resetGame()">🎮 Play Again</button>
+  </div>
+
+  <script>
+    let score1 = 0;
+    let score2 = 0;
+    let rolled1 = false;
+    let rolled2 = false;
+
+    function rollDice(player) {
+      const roll = Math.floor(Math.random() * 6) + 1;
+      const diceSymbol = ['⚀','⚁','⚂','⚃','⚄','⚅'][roll - 1];
+      const diceElement = document.getElementById(`dice${player}`);
+      const btnElement = document.getElementById(`btn${player}`);
+
+      // Add rolling animation
+      diceElement.classList.add('rolling');
+
+      // Disable button to prevent multiple clicks
+      btnElement.disabled = true;
+
+      setTimeout(() => {
+        diceElement.classList.remove('rolling');
+        diceElement.textContent = diceSymbol;
+
+        if (player === 1) {
+          score1 = roll;
+          rolled1 = true;
+        } else {
+          score2 = roll;
+          rolled2 = true;
+        }
+
+        // Check if both players have rolled
+        if (rolled1 && rolled2) {
+          setTimeout(() => {
+            showWinner();
+          }, 500);
+        }
+      }, 500);
+    }
+
+    function showWinner() {
+      const popup = document.getElementById('winnerPopup');
+      const overlay = document.getElementById('overlay');
+      const text = document.getElementById('winnerText');
+      const scoreDisplay = document.getElementById('scoreDisplay');
+      const player1Element = document.getElementById('player1');
+      const player2Element = document.getElementById('player2');
+
+      // Update score display
+      scoreDisplay.textContent = `Player 1: ${score1} | Player 2: ${score2}`;
+
+      // Determine winner and highlight
+      if (score1 > score2) {
+        text.textContent = "🏆 Player 1 Wins!";
+        player1Element.classList.add('winner');
+        player2Element.classList.remove('winner', 'draw');
+      } else if (score2 > score1) {
+        text.textContent = "🏆 Player 2 Wins!";
+        player2Element.classList.add('winner');
+        player1Element.classList.remove('winner', 'draw');
+      } else {
+        text.textContent = "🤝 It's a Draw!";
+        player1Element.classList.remove('winner');
+        player2Element.classList.remove('winner');
+        player1Element.classList.add('draw');
+        player2Element.classList.add('draw');
+      }
+
+      // Force show popup - ensure it's visible
+      popup.style.display = 'block';
+      overlay.style.display = 'block';
+      
+      // Add animation classes after a small delay to ensure display is applied
+      setTimeout(() => {
+        overlay.classList.add('show');
+        popup.classList.add('show');
+      }, 10);
+    }
+
+    function resetGame() {
+      // Reset game state
+      rolled1 = false;
+      rolled2 = false;
+      score1 = 0;
+      score2 = 0;
+
+      // Reset dice display
+      document.getElementById('dice1').textContent = '🎲';
+      document.getElementById('dice2').textContent = '🎲';
+
+      // Re-enable buttons
+      document.getElementById('btn1').disabled = false;
+      document.getElementById('btn2').disabled = false;
+
+      // Remove winner and draw highlighting
+      document.getElementById('player1').classList.remove('winner', 'draw');
+      document.getElementById('player2').classList.remove('winner', 'draw');
+
+      // Hide popup with animation
+      const popup = document.getElementById('winnerPopup');
+      const overlay = document.getElementById('overlay');
+      
+      popup.classList.remove('show');
+      overlay.classList.remove('show');
+      
+      setTimeout(() => {
+        popup.style.display = 'none';
+        overlay.style.display = 'none';
+      }, 300);
+    }
+
+    // Close popup when clicking overlay
+    document.getElementById('overlay').addEventListener('click', resetGame);
+  </script>
+</body>
+</html>
